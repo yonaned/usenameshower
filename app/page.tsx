@@ -1,5 +1,6 @@
 'use client';
 
+import Script from 'next/script';
 import { useEffect, useState } from 'react';
 
 export default function HomePage() {
@@ -46,6 +47,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+       <Script src="https://telegram.org/js/telegram-web-app.js" strategy="beforeInteractive" />
       <div className="bg-white p-6 rounded shadow-md text-center">
         {status && <div className="text-green-600">{status}</div>}
         {error && <div className="text-red-600">{error}</div>}

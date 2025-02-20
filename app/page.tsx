@@ -8,36 +8,40 @@ export default function HomePage() {
   const [userId, setUserId] = useState<number | null>(null);
 
   useEffect(() => {
-    // Get user ID from Telegram Mini App context
-    const tg = window.Telegram?.WebApp;
-    const user = tg?.initDataUnsafe?.user;
-    
-    if (!user?.id) {
-      setError('User ID not found. Please open the app inside Telegram.');
-      return;
-    }
-
-    setUserId(user.id);
-
-    const checkMembership = async () => {
-      try {
-        const res = await fetch('/api/checkMembership', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: user.id }),
-        });
-        const data = await res.json();
-        if (res.ok) {
-          setStatus(data.status === 'member' ? 'You are a member!' : 'Please join the channel.');
-        } else {
-          setError(data.error || 'Something went wrong');
-        }
-      } catch (err) {
-        setError('Network error');
+    // Ensure Telegram API exists
+    if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+      const tg = window.Telegram.WebApp;
+      const user = tg.initDataUnsafe?.user;
+      
+      if (!user?.id) {
+        setError('User ID not found. Please open the app inside Telegram.');
+        return;
       }
-    };
 
-    checkMembership();
+      setUserId(user.id);
+
+      const checkMembership = async () => {
+        try {
+          const res = await fetch('/api/checkMembership', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: user.id }),
+          });
+          const data = await res.json();
+          if (res.ok) {
+            setStatus(data.status === 'member' ? 'You are a member!' : 'Please join the channel.');
+          } else {
+            setError(data.error || 'Something went wrong');
+          }
+        } catch (err) {
+          setError('Network error');
+        }
+      };
+
+      checkMembership();
+    } else {
+      setError('Telegram API not available. Please open in Telegram.');
+    }
   }, []);
 
   return (
